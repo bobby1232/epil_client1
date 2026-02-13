@@ -38,7 +38,7 @@ from app.keyboards import (
 )
 from app.models import AppointmentStatus, BlockedInterval
 from app.schedule_style import DAY_TIMELINE_STYLE, WEEK_SCHEDULE_STYLE
-from app.utils import format_price, appointment_services_label
+from app.utils import format_price, appointment_services_label, service_category_title, service_label_with_category, services_label_with_category
 from texts import (
     CONTACTS,
     PRECARE_RECOMMENDATIONS,
@@ -126,12 +126,6 @@ def _display_duration_for_services(services: list) -> int:
     duration_sum = sum(int(s.duration_min) for s in services)
     buffer_sum = sum(int(s.buffer_min) for s in services)
     return duration_sum + buffer_sum
-
-def _services_label(services: list) -> str:
-    return ", ".join(s.name for s in services)
-
-def _category_title(category: str) -> str:
-    return "Шугаринг" if category == "sugar" else "Лазерная эпиляция"
 
 def admin_ids(cfg: Config) -> tuple[int, ...]:
     ids = getattr(cfg, "admin_telegram_ids", None)
@@ -453,7 +447,7 @@ async def cb_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if not services:
             return await query.message.edit_text("Для этой категории пока нет услуг.")
         await query.message.edit_text(
-            f"{_category_title(category)}\n\nВыбери одну или несколько услуг, затем нажми «Далее»:",
+            f"{service_category_title(category)}\n\nВыбери одну или несколько услуг, затем нажми «Далее»:",
             reply_markup=services_multi_kb(services, set()),
         )
         return
@@ -738,7 +732,7 @@ async def flow_services_from_callback(update: Update, context: ContextTypes.DEFA
         services = await list_active_services_by_category(s, category)
     selected = set(_selected_service_ids(context))
     await msg.edit_text(
-        f"{_category_title(category)}\n\nВыбери одну или несколько услуг, затем нажми «Далее»:",
+        f"{service_category_title(category)}\n\nВыбери одну или несколько услуг, затем нажми «Далее»:",
         reply_markup=services_multi_kb(services, selected),
     )
 
@@ -1003,7 +997,7 @@ async def handle_contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
     local_dt = start_local.astimezone(settings.tz) if start_local.tzinfo else settings.tz.localize(start_local)
     await msg.reply_text(
         "Проверь, всё ли верно перед отправкой заявки:\n"
-        f"Услуги: {_services_label(selected_services)}\n"
+        f"Услуги: {services_label_with_category(selected_services)}\n"
         f"Дата/время: {local_dt.strftime('%d.%m %H:%M')}\n"
         f"Длительность: {int(duration_min)} мин (+буфер)\n"
         f"Цена: {price_label}",
@@ -1538,7 +1532,7 @@ async def handle_admin_price(update: Update, context: ContextTypes.DEFAULT_TYPE)
     await update.message.reply_text(
         "Запись создана ✅\n"
         f"Клиент: {client_name}\n"
-        f"Услуга: {service.name}\n"
+        f"Услуга: {service_label_with_category(service)}\n"
         f"Дата/время: {local_dt.strftime('%d.%m %H:%M')}\n"
         f"Цена: {price_label}",
         reply_markup=admin_manage_appt_kb(appt.id),
@@ -1551,7 +1545,7 @@ async def handle_admin_price(update: Update, context: ContextTypes.DEFAULT_TYPE)
                 text=(
                     "✅ Мастер записал вас на услугу.\n"
                     f"{local_dt.strftime('%d.%m %H:%M')}\n"
-                    f"Услуга: {service.name}\n"
+                    f"Услуга: {service_label_with_category(service)}\n"
                     f"Цена: {price_label}"
                 )
             )
@@ -1694,7 +1688,7 @@ async def finalize_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     duration_min = _slot_duration_for_services(selected_services, service)
                     total_price = sum(Decimal(str(s.price)) for s in selected_services)
                     comment = context.user_data.get(K_COMMENT)
-                    admin_comment = f"Услуги: {_services_label(selected_services)}"
+                    admin_comment = f"Услуги: {services_label_with_category(selected_services)}"
                     appt = await create_hold_appointment_with_duration(
                         s,
                         settings,
@@ -1733,7 +1727,7 @@ async def finalize_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 cfg,
                 text=(
                     f"🆕 Новая заявка (HOLD #{appt.id})\n"
-                    f"Услуги: {_services_label(selected_services)}\n"
+                    f"Услуги: {services_label_with_category(selected_services)}\n"
                     f"Дата/время: {appt.start_dt.astimezone(settings.tz).strftime('%d.%m %H:%M')}\n"
                     f"Длительность: {int(duration_label)} мин (+буфер)\n"
                     f"Цена: {format_price(total_price)}\n\n"

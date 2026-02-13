@@ -3,6 +3,12 @@ from __future__ import annotations
 from decimal import Decimal, InvalidOperation
 
 
+CATEGORY_TITLES = {
+    "sugar": "Шугаринг",
+    "laser": "Лазерная эпиляция",
+}
+
+
 def format_price(value: object) -> str:
     if value is None:
         return ""
@@ -21,5 +27,23 @@ def appointment_services_label(appt) -> str:
             return label
     service = getattr(appt, "service", None)
     if service and getattr(service, "name", None):
-        return service.name
+        return service_label_with_category(service)
     return "Услуга"
+
+
+def service_category_title(category: str | None) -> str:
+    if not category:
+        return "Услуги"
+    return CATEGORY_TITLES.get(category, category)
+
+
+def service_label_with_category(service) -> str:
+    name = (getattr(service, "name", None) or "").strip()
+    category = service_category_title(getattr(service, "category", None))
+    if not name:
+        return category
+    return f"{category}: {name}"
+
+
+def services_label_with_category(services: list) -> str:
+    return ", ".join(service_label_with_category(s) for s in services)
