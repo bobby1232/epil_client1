@@ -80,7 +80,7 @@ K_BREAK_REASON = "break_reason"
 K_BREAK_REPEAT = "break_repeat"
 K_BREAK_CANCEL_IDS = "break_cancel_ids"
 
-ADDRESS_LINE = "Мусы Джалиля 30 к1, квартира 123"
+ADDRESS_LINE = "Московская область, г. Видное, мкр. Купелинка, ул. Северный, д. 11"
 
 def _selected_service_ids(context: ContextTypes.DEFAULT_TYPE) -> list[int]:
     raw = context.user_data.get(K_SVCS) or []
