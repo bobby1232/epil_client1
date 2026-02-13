@@ -32,6 +32,7 @@ class Service(Base):
     price: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False, default=0)
     duration_min: Mapped[int] = mapped_column(Integer, nullable=False)
     buffer_min: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    category: Mapped[str] = mapped_column(String(32), nullable=False, default="sugar")
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     sort_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
