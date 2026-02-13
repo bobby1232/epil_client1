@@ -28,7 +28,7 @@ from app.logic import (
     create_break_rule, generate_breaks_from_rules
 )
 from app.keyboards import (
-    main_menu_kb, phone_request_kb, services_multi_kb, dates_kb, slots_kb, confirm_request_kb,
+    main_menu_kb, phone_request_kb, booking_categories_kb, services_multi_kb, dates_kb, slots_kb, confirm_request_kb,
     admin_request_kb, my_appts_kb, my_appt_actions_kb, admin_menu_kb,
     reschedule_dates_kb, reschedule_slots_kb, reschedule_confirm_kb, admin_reschedule_kb,
     admin_services_kb, admin_dates_kb, admin_slots_kb, admin_manage_appt_kb,
@@ -79,6 +79,7 @@ K_BREAK_TIME_ERRORS = "break_time_errors"
 K_BREAK_REASON = "break_reason"
 K_BREAK_REPEAT = "break_repeat"
 K_BREAK_CANCEL_IDS = "break_cancel_ids"
+K_BOOKING_CATEGORY = "booking_category"
 
 ADDRESS_LINE = "Московская область, г. Видное, мкр. Купелинка, ул. Северный, д. 11"
 
@@ -128,6 +129,16 @@ def _display_duration_for_services(services: list) -> int:
 
 def _services_label(services: list) -> str:
     return ", ".join(s.name for s in services)
+
+def _category_title(category: str) -> str:
+    return "Шугаринг" if category == "sugar" else "Лазерная эпиляция"
+
+def _filter_services_by_category(services: list, category: str | None) -> list:
+    if category == "sugar":
+        return [s for s in services if s.name.startswith("Шугаринг:")]
+    if category == "laser":
+        return [s for s in services if s.name.startswith("Лазерная эпиляция:")]
+    return services
 
 def admin_ids(cfg: Config) -> tuple[int, ...]:
     ids = getattr(cfg, "admin_telegram_ids", None)
@@ -344,9 +355,15 @@ async def show_prices(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not services:
         await update.message.reply_text("Пока нет услуг. Напиши мастеру.", reply_markup=main_menu_for(update, context))
         return
-    lines = ["Прайс-лист:"]
-    for sv in services:
-        lines.append(f"• {sv.name}: {format_price(sv.price)} / {int(sv.duration_min)} мин")
+    sugar_services = _filter_services_by_category(services, "sugar")
+    laser_services = _filter_services_by_category(services, "laser")
+    lines = ["Прайс-лист:", "", "Шугаринг:"]
+    for sv in sugar_services:
+        lines.append(f"• {sv.name} — {format_price(sv.price)} — {int(sv.duration_min)} мин")
+    lines.append("")
+    lines.append("Лазерная эпиляция:")
+    for sv in laser_services:
+        lines.append(f"• {sv.name} — {format_price(sv.price)} — {int(sv.duration_min)} мин")
     await update.message.reply_text("\n".join(lines), reply_markup=main_menu_for(update, context))
 
 async def show_contacts(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -399,15 +416,10 @@ async def handle_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def flow_services(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data.pop(K_SVC, None)
     context.user_data.pop(K_SVCS, None)
-    session_factory = context.bot_data["session_factory"]
-    async with session_factory() as s:
-        services = await list_active_services(s)
-    if not services:
-        await update.message.reply_text("Услуги пока не настроены. Напишите мастеру.", reply_markup=main_menu_for(update, context))
-        return
+    context.user_data.pop(K_BOOKING_CATEGORY, None)
     await update.message.reply_text(
-        "Выбери одну или несколько услуг, затем нажми «Далее»:",
-        reply_markup=services_multi_kb(services, set()),
+        "Выбери категорию услуг:",
+        reply_markup=booking_categories_kb(),
     )
 
 async def admin_start_booking(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -438,6 +450,22 @@ async def cb_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()
     data = query.data or ""
 
+    if data.startswith("bookcat:"):
+        category = data.split(":", 1)[1]
+        context.user_data[K_BOOKING_CATEGORY] = category
+        context.user_data.pop(K_SVCS, None)
+        session_factory = context.bot_data["session_factory"]
+        async with session_factory() as s:
+            services = await list_active_services(s)
+        services = _filter_services_by_category(services, category)
+        if not services:
+            return await query.message.edit_text("Для этой категории пока нет услуг.")
+        await query.message.edit_text(
+            f"{_category_title(category)}\n\nВыбери одну или несколько услуг, затем нажми «Далее»:",
+            reply_markup=services_multi_kb(services, set()),
+        )
+        return
+
     if data.startswith("svcsel:"):
         svc_id = int(data.split(":")[1])
         selected = _selected_service_ids(context)
@@ -450,6 +478,7 @@ async def cb_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
         session_factory = context.bot_data["session_factory"]
         async with session_factory() as s:
             services = await list_active_services(s)
+        services = _filter_services_by_category(services, context.user_data.get(K_BOOKING_CATEGORY))
         await query.message.edit_text(
             "Выбери одну или несколько услуг, затем нажми «Далее»:",
             reply_markup=services_multi_kb(services, set(selected)),
@@ -461,6 +490,7 @@ async def cb_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
         session_factory = context.bot_data["session_factory"]
         async with session_factory() as s:
             services = await list_active_services(s)
+        services = _filter_services_by_category(services, context.user_data.get(K_BOOKING_CATEGORY))
         await query.message.edit_text(
             "Выбери одну или несколько услуг, затем нажми «Далее»:",
             reply_markup=services_multi_kb(services, set()),
@@ -475,6 +505,7 @@ async def cb_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
         session_factory = context.bot_data["session_factory"]
         async with session_factory() as s:
             services = await list_active_services(s)
+        services = _filter_services_by_category(services, context.user_data.get(K_BOOKING_CATEGORY))
         selected_services = _collect_selected_services(services, selected)
         if not selected_services:
             await query.message.edit_text("Выбери хотя бы одну услугу.")
@@ -709,12 +740,17 @@ async def cb_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def flow_services_from_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     msg = update.callback_query.message
+    category = context.user_data.get(K_BOOKING_CATEGORY)
+    if not category:
+        await msg.edit_text("Выбери категорию услуг:", reply_markup=booking_categories_kb())
+        return
     session_factory = context.bot_data["session_factory"]
     async with session_factory() as s:
         services = await list_active_services(s)
+    services = _filter_services_by_category(services, category)
     selected = set(_selected_service_ids(context))
     await msg.edit_text(
-        "Выбери одну или несколько услуг, затем нажми «Далее»:",
+        f"{_category_title(category)}\n\nВыбери одну или несколько услуг, затем нажми «Далее»:",
         reply_markup=services_multi_kb(services, selected),
     )
 
