@@ -8,6 +8,7 @@ class Config:
     admin_telegram_ids: tuple[int, ...]
     database_url: str
     timezone: str
+    name: str
 
     webhook_url: str | None
     port: int
@@ -61,6 +62,7 @@ def load_config() -> Config:
         admin_telegram_ids=admin_ids,
         database_url=db_url,
         timezone=os.getenv("TIMEZONE", "Europe/Amsterdam").strip(),
+        name=os.getenv("NAME", "Найра").strip() or "Найра",
 
         webhook_url=webhook_url,
         port=port,

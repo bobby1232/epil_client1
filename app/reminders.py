@@ -286,7 +286,7 @@ async def check_and_send_reminders(context: ContextTypes.DEFAULT_TYPE) -> None:
 
             if appt.client and appt.client.tg_id:
                 try:
-                    for part in get_aftercare_recommendations_parts(appt.service.category):
+                    for part in get_aftercare_recommendations_parts(appt.service.category, cfg.name):
                         await context.bot.send_message(
                             chat_id=appt.client.tg_id,
                             text=part,
