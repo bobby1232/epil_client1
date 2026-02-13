@@ -81,7 +81,7 @@ K_BREAK_REPEAT = "break_repeat"
 K_BREAK_CANCEL_IDS = "break_cancel_ids"
 K_BOOKING_CATEGORY = "booking_category"
 
-ADDRESS_LINE = "Московская область, г. Видное, мкр. Купелинка, ул. Северный, д. 11"
+ADDRESS_LINE = "квартал Северный, 11, микрорайон Купелинка, деревня Сапроново, Ленинский городской округ, Московская область"
 
 def _selected_service_ids(context: ContextTypes.DEFAULT_TYPE) -> list[int]:
     raw = context.user_data.get(K_SVCS) or []
