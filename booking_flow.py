@@ -18,6 +18,12 @@ SVC, DAY, TIME, COMMENT, PHONE, FINAL = range(6)
 RU_WEEKDAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
 
 
+def _service_label(service: dict) -> str:
+    category = service.get("category")
+    category_title = "Шугаринг" if category == "sugar" else "Лазерная эпиляция" if category == "laser" else "Услуги"
+    return f"{category_title}: {service.get('name', 'Услуга')}"
+
+
 def _slots_rows(slots: List[datetime]) -> List[List[InlineKeyboardButton]]:
     rows: List[List[InlineKeyboardButton]] = []
     row: List[InlineKeyboardButton] = []
@@ -65,7 +71,7 @@ async def start_booking(update: Update, context: ContextTypes.DEFAULT_TYPE) -> i
 
     buttons = [
         [InlineKeyboardButton(
-            f"{s['name']} — {s['duration_min']} мин — {s['price']} ₽",
+            f"{_service_label(s)} — {s['duration_min']} мин — {s['price']} ₽",
             callback_data=f"svc:{s['id']}"
         )]
         for s in services
@@ -184,7 +190,7 @@ async def pick_day_cb(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         services = await db.get_services()
         buttons = [
             [InlineKeyboardButton(
-                f"{s['name']} — {s['duration_min']} мин — {s['price']} ₽",
+                f"{_service_label(s)} — {s['duration_min']} мин — {s['price']} ₽",
                 callback_data=f"svc:{s['id']}"
             )]
             for s in services

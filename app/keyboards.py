@@ -2,7 +2,7 @@ from __future__ import annotations
 from datetime import date, datetime
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton
 from app.models import Service, Appointment
-from app.utils import format_price, appointment_services_label
+from app.utils import format_price, appointment_services_label, service_label_with_category
 
 STATUS_RU = {
     "Hold": "Ожидает подтверждения",
@@ -64,7 +64,7 @@ def services_kb(services: list[Service]) -> InlineKeyboardMarkup:
     rows = []
     for s in services:
         price = format_price(s.price)
-        rows.append([InlineKeyboardButton(f"{s.name} • {int(s.duration_min)} мин • {price}", callback_data=f"svc:{s.id}")])
+        rows.append([InlineKeyboardButton(f"{service_label_with_category(s)} • {int(s.duration_min)} мин • {price}", callback_data=f"svc:{s.id}")])
     rows.append([InlineKeyboardButton("⬅️ Назад", callback_data="back:main")])
     return InlineKeyboardMarkup(rows)
 
@@ -75,7 +75,7 @@ def services_multi_kb(services: list[Service], selected_ids: set[int]) -> Inline
         marker = "✅ " if s.id in selected_ids else ""
         rows.append([
             InlineKeyboardButton(
-                f"{marker}{s.name} • {int(s.duration_min)} мин • {price}",
+                f"{marker}{service_label_with_category(s)} • {int(s.duration_min)} мин • {price}",
                 callback_data=f"svcsel:{s.id}",
             )
         ])
@@ -91,7 +91,7 @@ def admin_services_kb(services: list[Service]) -> InlineKeyboardMarkup:
     rows = []
     for s in services:
         price = format_price(s.price)
-        rows.append([InlineKeyboardButton(f"{s.name} • {int(s.duration_min)} мин • {price}", callback_data=f"admsvc:{s.id}")])
+        rows.append([InlineKeyboardButton(f"{service_label_with_category(s)} • {int(s.duration_min)} мин • {price}", callback_data=f"admsvc:{s.id}")])
     rows.append([InlineKeyboardButton("⬅️ Назад", callback_data="back:main")])
     return InlineKeyboardMarkup(rows)
 
