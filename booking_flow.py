@@ -20,7 +20,7 @@ RU_WEEKDAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
 
 def _service_label(service: dict) -> str:
     category = service.get("category")
-    category_title = "Шугаринг" if category == "sugar" else "Лазерная эпиляция" if category == "laser" else "Услуги"
+    category_title = "Шугаринг" if category == "sugar" else "Лазер" if category == "laser" else "Услуги"
     return f"{category_title}: {service.get('name', 'Услуга')}"
 
 

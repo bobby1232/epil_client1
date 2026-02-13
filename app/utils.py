@@ -5,8 +5,15 @@ from decimal import Decimal, InvalidOperation
 
 CATEGORY_TITLES = {
     "sugar": "Шугаринг",
-    "laser": "Лазерная эпиляция",
+    "laser": "Лазер",
 }
+
+
+_SERVICE_NAME_PREFIXES = (
+    "Шугаринг:",
+    "Лазерная эпиляция:",
+    "Лазер:",
+)
 
 
 def format_price(value: object) -> str:
@@ -39,6 +46,10 @@ def service_category_title(category: str | None) -> str:
 
 def service_label_with_category(service) -> str:
     name = (getattr(service, "name", None) or "").strip()
+    for prefix in _SERVICE_NAME_PREFIXES:
+        if name.startswith(prefix):
+            name = name[len(prefix):].strip()
+            break
     category = service_category_title(getattr(service, "category", None))
     if not name:
         return category

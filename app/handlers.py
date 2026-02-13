@@ -348,7 +348,7 @@ async def show_prices(update: Update, context: ContextTypes.DEFAULT_TYPE):
     for sv in sugar_services:
         lines.append(f"• {sv.name} — {format_price(sv.price)} — {int(sv.duration_min)} мин")
     lines.append("")
-    lines.append("Лазерная эпиляция:")
+    lines.append("Лазер:")
     for sv in laser_services:
         lines.append(f"• {sv.name} — {format_price(sv.price)} — {int(sv.duration_min)} мин")
     await update.message.reply_text("\n".join(lines), reply_markup=main_menu_for(update, context))

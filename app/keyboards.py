@@ -55,7 +55,7 @@ def phone_request_kb() -> ReplyKeyboardMarkup:
 def booking_categories_kb() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("Шугаринг", callback_data="bookcat:sugar")],
-        [InlineKeyboardButton("Лазерная эпиляция", callback_data="bookcat:laser")],
+        [InlineKeyboardButton("Лазер", callback_data="bookcat:laser")],
         [InlineKeyboardButton("⬅️ Назад", callback_data="back:main")],
     ])
 
