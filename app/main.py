@@ -33,6 +33,26 @@ async def init_db(engine):
         except Exception as exc:
             logger.warning("Failed to ensure price_override column exists: %s", exc)
 
+        try:
+            await conn.execute(
+                text("ALTER TABLE services ADD COLUMN IF NOT EXISTS category VARCHAR(32)")
+            )
+            await conn.execute(
+                text(
+                    """
+                    UPDATE services
+                    SET category = CASE
+                        WHEN name LIKE 'Шугаринг:%' THEN 'sugar'
+                        WHEN name LIKE 'Лазерная эпиляция:%' THEN 'laser'
+                        ELSE COALESCE(category, 'sugar')
+                    END
+                    WHERE category IS NULL OR category = ''
+                    """
+                )
+            )
+        except Exception as exc:
+            logger.warning("Failed to ensure services.category column exists: %s", exc)
+
 
 async def seed_db(session_factory, cfg):
     defaults = {
