@@ -34,7 +34,7 @@ REMINDER_2H = "⏰ Напоминание: у вас запись через 2 �
 
 VISIT_CONFIRMED = "Отлично, визит подтверждён ✅"
 
-PRECARE_RECOMMENDATIONS_PARTS = [
+SUGAR_PRECARE_RECOMMENDATIONS_PARTS = [
     "Перед депиляцией:",
     (
         "1. Подходящая длина волос для сахарной депиляции 4-8 мм. Паста в этом случае лучше "
@@ -68,9 +68,9 @@ PRECARE_RECOMMENDATIONS_PARTS = [
     ),
 ]
 
-PRECARE_RECOMMENDATIONS = "\n".join(PRECARE_RECOMMENDATIONS_PARTS)
+SUGAR_PRECARE_RECOMMENDATIONS = "\n".join(SUGAR_PRECARE_RECOMMENDATIONS_PARTS)
 
-AFTERCARE_RECOMMENDATIONS_PARTS = [
+SUGAR_AFTERCARE_RECOMMENDATIONS_PARTS = [
     "После депиляции:",
     (
         "1. Сразу после депиляции можно принять теплый душем, смыть остатки средств с помощью "
@@ -106,4 +106,60 @@ AFTERCARE_RECOMMENDATIONS_PARTS = [
     "В течении первых дней кожа восстановит свой защитный барьер и станет менее уязвимой.",
 ]
 
-AFTERCARE_RECOMMENDATIONS = "\n".join(AFTERCARE_RECOMMENDATIONS_PARTS)
+SUGAR_AFTERCARE_RECOMMENDATIONS = "\n".join(SUGAR_AFTERCARE_RECOMMENDATIONS_PARTS)
+
+
+LASER_PRECARE_RECOMMENDATIONS_PARTS = [
+    "Спасибо, что записались на лазерную эпиляцию!\nНайра будет ждать вас 🌿",
+    "Подготовка к процедуре:",
+    "• За 2–3 недели — только бритьё, без воска/шугаринга, без загара",
+    "• За 24 часа — сбрить волосы, не наносить кремы, масла, дезодоранты",
+    "• В день процедуры — кожа чистая и сухая, свободная одежда",
+    "• Сообщите мастеру о лекарствах и особенностях здоровья",
+]
+
+LASER_PRECARE_RECOMMENDATIONS = "\n".join(LASER_PRECARE_RECOMMENDATIONS_PARTS)
+
+LASER_AFTERCARE_RECOMMENDATIONS_PARTS = [
+    "Спасибо, что были на процедуре лазерной эпиляции!\nНайра позаботилась о вас 🌿",
+    "Чтобы кожа быстро восстановилась и результат закрепился, соблюдайте простые рекомендации:",
+    "После процедуры (первые 24–48 часов)",
+    "• Не трогать и не тереть зону обработки",
+    "• Не баня, сауна, горячая ванна, спортзал",
+    "• Не наносить спирт/скрабы/агрессивный уход",
+    "• Использовать успокаивающий крем (пантенол/алоэ)",
+    "В течение 7–10 дней",
+    "• Избегать загара и солярия",
+    "• Обязательно SPF 30–50 на открытых зонах",
+    "• Не делать воск/шугаринг/эпилятор (только бритьё при необходимости)",
+    "• Возможное «выпадение» волос — это норма, не выдёргивать",
+    "Следующая запись",
+    "Оптимальный интервал — через 4–6 недель (по зоне и росту волос).",
+    "Регулярность = быстрее чистый результат и меньше процедур.",
+]
+
+LASER_AFTERCARE_RECOMMENDATIONS = "\n".join(LASER_AFTERCARE_RECOMMENDATIONS_PARTS)
+
+PRECARE_RECOMMENDATIONS_PARTS_BY_CATEGORY = {
+    "sugar": SUGAR_PRECARE_RECOMMENDATIONS_PARTS,
+    "laser": LASER_PRECARE_RECOMMENDATIONS_PARTS,
+}
+
+AFTERCARE_RECOMMENDATIONS_PARTS_BY_CATEGORY = {
+    "sugar": SUGAR_AFTERCARE_RECOMMENDATIONS_PARTS,
+    "laser": LASER_AFTERCARE_RECOMMENDATIONS_PARTS,
+}
+
+
+def get_precare_recommendations_parts(category: str | None) -> list[str]:
+    return PRECARE_RECOMMENDATIONS_PARTS_BY_CATEGORY.get(category or "", SUGAR_PRECARE_RECOMMENDATIONS_PARTS)
+
+
+def get_aftercare_recommendations_parts(category: str | None) -> list[str]:
+    return AFTERCARE_RECOMMENDATIONS_PARTS_BY_CATEGORY.get(category or "", SUGAR_AFTERCARE_RECOMMENDATIONS_PARTS)
+
+
+PRECARE_RECOMMENDATIONS_PARTS = SUGAR_PRECARE_RECOMMENDATIONS_PARTS
+PRECARE_RECOMMENDATIONS = SUGAR_PRECARE_RECOMMENDATIONS
+AFTERCARE_RECOMMENDATIONS_PARTS = SUGAR_AFTERCARE_RECOMMENDATIONS_PARTS
+AFTERCARE_RECOMMENDATIONS = SUGAR_AFTERCARE_RECOMMENDATIONS

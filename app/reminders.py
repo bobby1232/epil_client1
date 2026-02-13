@@ -11,7 +11,7 @@ from app.models import Appointment, AppointmentStatus, User, Service
 from app.logic import get_settings
 from app.keyboards import reminder_kb, admin_visit_confirm_kb
 from app.utils import format_price, appointment_services_label
-from texts import AFTERCARE_RECOMMENDATIONS_PARTS
+from texts import get_aftercare_recommendations_parts
 
 
 
@@ -286,7 +286,7 @@ async def check_and_send_reminders(context: ContextTypes.DEFAULT_TYPE) -> None:
 
             if appt.client and appt.client.tg_id:
                 try:
-                    for part in AFTERCARE_RECOMMENDATIONS_PARTS:
+                    for part in get_aftercare_recommendations_parts(appt.service.category):
                         await context.bot.send_message(
                             chat_id=appt.client.tg_id,
                             text=part,
