@@ -243,7 +243,7 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await upsert_user(s, update.effective_user.id, update.effective_user.username, update.effective_user.full_name)
     await update.message.reply_text(
         "Привет! \n\n"
-        "👋 Я — бот Адрианы по записи на депиляцию ✨\n\n"
+        "👋 Я — бот Найры по записи на депиляцию и эпиляцию ✨\n\n"
         "С моей помощью ты можешь: \n"
         "• быстро записаться на процедуру в удобное время \n"
         "• узнать стоимость услуг и адрес студии \n"
