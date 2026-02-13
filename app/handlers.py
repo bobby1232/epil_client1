@@ -43,7 +43,7 @@ from texts import (
     CONTACTS,
     PRECARE_RECOMMENDATIONS,
     AFTERCARE_RECOMMENDATIONS,
-    PRECARE_RECOMMENDATIONS_PARTS,
+    get_precare_recommendations_parts,
 )
 
 logger = logging.getLogger(__name__)
@@ -1604,7 +1604,7 @@ async def handle_admin_confirm_price(update: Update, context: ContextTypes.DEFAU
                 ),
             )
             await asyncio.sleep(5)
-            for part in PRECARE_RECOMMENDATIONS_PARTS:
+            for part in get_precare_recommendations_parts(appt.service.category):
                 await context.bot.send_message(
                     chat_id=appt.client.tg_id,
                     text=part,
