@@ -241,7 +241,7 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await upsert_user(s, update.effective_user.id, update.effective_user.username, update.effective_user.full_name)
     await update.message.reply_text(
         "Привет! \n\n"
-        "👋 Я — бот Найры по записи на депиляцию и эпиляцию ✨\n\n"
+        f"👋 Я — бот {cfg.name} по записи на депиляцию и эпиляцию ✨\n\n"
         "С моей помощью ты можешь: \n"
         "• быстро записаться на процедуру в удобное время \n"
         "• узнать стоимость услуг и адрес студии \n"
@@ -1600,11 +1600,11 @@ async def handle_admin_confirm_price(update: Update, context: ContextTypes.DEFAU
                     f"{appt.start_dt.astimezone(settings.tz).strftime('%d.%m %H:%M')}\n"
                     f"Услуга: {appointment_services_label(appt)}\n"
                     f"Цена: {price_label}\n"
-                    f"Адриана ждет Вас!\n\n"
+                    f"{cfg.name} ждет Вас!\n\n"
                 ),
             )
             await asyncio.sleep(5)
-            for part in get_precare_recommendations_parts(appt.service.category):
+            for part in get_precare_recommendations_parts(appt.service.category, cfg.name):
                 await context.bot.send_message(
                     chat_id=appt.client.tg_id,
                     text=part,

@@ -110,7 +110,7 @@ SUGAR_AFTERCARE_RECOMMENDATIONS = "\n".join(SUGAR_AFTERCARE_RECOMMENDATIONS_PART
 
 
 LASER_PRECARE_RECOMMENDATIONS_PARTS = [
-    "Спасибо, что записались на лазерную эпиляцию!\nНайра будет ждать вас 🌿",
+    "Спасибо, что записались на лазерную эпиляцию!\n{name} будет ждать вас 🌿",
     "Подготовка к процедуре:",
     "• За 2–3 недели — только бритьё, без воска/шугаринга, без загара",
     "• За 24 часа — сбрить волосы, не наносить кремы, масла, дезодоранты",
@@ -121,7 +121,7 @@ LASER_PRECARE_RECOMMENDATIONS_PARTS = [
 LASER_PRECARE_RECOMMENDATIONS = "\n".join(LASER_PRECARE_RECOMMENDATIONS_PARTS)
 
 LASER_AFTERCARE_RECOMMENDATIONS_PARTS = [
-    "Спасибо, что были на процедуре лазерной эпиляции!\nНайра позаботилась о вас 🌿",
+    "Спасибо, что были на процедуре лазерной эпиляции!\n{name} позаботилась о вас 🌿",
     "Чтобы кожа быстро восстановилась и результат закрепился, соблюдайте простые рекомендации:",
     "После процедуры (первые 24–48 часов)",
     "• Не трогать и не тереть зону обработки",
@@ -151,12 +151,18 @@ AFTERCARE_RECOMMENDATIONS_PARTS_BY_CATEGORY = {
 }
 
 
-def get_precare_recommendations_parts(category: str | None) -> list[str]:
-    return PRECARE_RECOMMENDATIONS_PARTS_BY_CATEGORY.get(category or "", SUGAR_PRECARE_RECOMMENDATIONS_PARTS)
+def _format_parts(parts: list[str], name: str) -> list[str]:
+    return [part.format(name=name) for part in parts]
 
 
-def get_aftercare_recommendations_parts(category: str | None) -> list[str]:
-    return AFTERCARE_RECOMMENDATIONS_PARTS_BY_CATEGORY.get(category or "", SUGAR_AFTERCARE_RECOMMENDATIONS_PARTS)
+def get_precare_recommendations_parts(category: str | None, name: str) -> list[str]:
+    parts = PRECARE_RECOMMENDATIONS_PARTS_BY_CATEGORY.get(category or "", SUGAR_PRECARE_RECOMMENDATIONS_PARTS)
+    return _format_parts(parts, name)
+
+
+def get_aftercare_recommendations_parts(category: str | None, name: str) -> list[str]:
+    parts = AFTERCARE_RECOMMENDATIONS_PARTS_BY_CATEGORY.get(category or "", SUGAR_AFTERCARE_RECOMMENDATIONS_PARTS)
+    return _format_parts(parts, name)
 
 
 PRECARE_RECOMMENDATIONS_PARTS = SUGAR_PRECARE_RECOMMENDATIONS_PARTS
